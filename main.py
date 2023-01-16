@@ -1,5 +1,5 @@
 import pandas as pd
-
+import json
 data = [
 	{
 		"Title": "Fundamentals of Wavelets",
@@ -1692,17 +1692,35 @@ data = [
 ]
 
 
+# class NewTree:
+
+#     def __init__(self, value, parent=None):
+#         self.value = value
+#         self.children = []
+
+#         self.parent = parent
+
+
+#     def __getitem__(self, item):
+#         return item
+
 class NewTree:
 
-    def __init__(self, value, parent=None):
-        self.value = value
-        self.children = []
-
-        self.parent = parent
-
-    def __getitem__(self, item):
-        return item
-
+	def __init__(self, value, parent=None) -> None:
+		self.value = value
+		self.children = []
+		self.parent = parent
+	
+	def __getitem__(self, item):
+		return item
+	
+	def print_tree(self):
+		for i in self.children:
+			print(f"\ncurrent genre: {i.value}")
+			for j in i.children:
+				print(f"\ncurrent subgenre: {j.value}")
+				for k in j.children:
+					print(k.value)
 
 def set_pandas_options():
 	pd.set_option('display.max_rows', None)
@@ -1735,7 +1753,8 @@ def create_tree(genres, books_grouped):
 
 				for row in k.itertuples():
 
-					book_node = NewTree([row[1], row[2], row[3]], parent=subgenre_node)
+					# book_node = NewTree([row[1], row[2], row[3]], parent=subgenre_node)
+					book_node = NewTree(f"{row[1]} by {row[2]}", parent=subgenre_node)
 
 					subgenre_node.children.append(book_node)
 
@@ -1752,7 +1771,9 @@ if __name__ == "__main__":
 	list_of_grouped_books = list(grouped)
 	genre_information = new_df.Genre.unique()
 	current_tree = create_tree(genre_information, list_of_grouped_books)
-	print('inhere')
+	current_tree.print_tree()
+
+
 
 
 
