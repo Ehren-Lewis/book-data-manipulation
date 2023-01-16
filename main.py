@@ -1704,66 +1704,70 @@ class NewTree:
         return item
 
 
-
-
-
 import pandas as pd
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', 400)
-df = pd.read_csv(r'./books_new.csv')
+
+def set_pandas_options():
+	pd.set_option('display.max_rows', None)
+	pd.set_option('display.max_columns', None)
+	pd.set_option('display.width', 400)
+
+
+set_pandas_options()
+
+def create_dataframe(link):
+	return pd.read_csv(link)
+
+df = create_dataframe(r'./books_new.csv')
 # print(df)
 
 new_df = df.sort_values(by=['Genre', 'SubGenre'])
 
-# print(new_df.nunique())
-# print(new_df)
+
 grouped = new_df.groupby(['Genre'])
 books_grouped = list(grouped)
 
-# print(len(grouped))
-# create_tree(data)
-# help(pd)
-genres = new_df.Genre.unique()
-# print(genres)
-# print(new_df[:3])
 
-Root = NewTree("Books")
+genre_information = new_df.Genre.unique()
 
 
 
-for i in range(len(genres)):
-    genre_node = NewTree(genres[i], parent=Root)
-    # Root.children.append((firstNode))
-    current_group = books_grouped[i]
-    current_subgenre = current_group[1]
-    # print(type(current_subgenre))
+
+
+def create_tree(genres):
+	Root = NewTree("Books")
+	for i in range(len(genres)):
+		genre_node = NewTree(genres[i], parent=Root)
+		# Root.children.append((firstNode))
+		current_group = books_grouped[i]
+		current_subgenre = current_group[1]
+		# print(type(current_subgenre))
+
+		split_subgenres = list(current_subgenre.groupby("SubGenre"))
+		for j in range(len(split_subgenres)):
+			# print(split_subgenres[j][0])
+			subgenre_node = NewTree(split_subgenres[j][0], parent=genre_node)
+
+			for k in split_subgenres[j][1:]:
+
+				for row in k.itertuples():
+					# print(row)
+					book_node = NewTree([row[1], row[2], row[3]], parent=subgenre_node)
+					# print(book_node.value)
+
+					subgenre_node.children.append(book_node)
+
+			genre_node.children.append(subgenre_node)
+
+		Root.children.append(genre_node)
+	return Root
+
+current_tree = create_tree(genre_information)
 
 
 
-    split_subgenres = list(current_subgenre.groupby("SubGenre"))
-    for j in range(len(split_subgenres)):
-        # print(split_subgenres[j][0])
-        subgenre_node = NewTree(split_subgenres[j][0], parent=genre_node)
-
-        for k in split_subgenres[j][1:]:
-
-            for row in k.itertuples():
-                # print(row)
-                book_node = NewTree([row[1], row[2], row[3]], parent=subgenre_node)
-                # print(book_node.value)
-
-                subgenre_node.children.append(book_node)
-
-
-        genre_node.children.append(subgenre_node)
-
-    Root.children.append(genre_node)
-
-
-    # print(split_subgenres[i][1])
-print("\n")
-for i in Root.children:
+#     print(split_subgenres[i][1])
+# print("\n")
+for i in current_tree.children:
     print("genre: ", i.value)
     print("\n")
     for j in i.children:
@@ -1772,6 +1776,9 @@ for i in Root.children:
         for k in j.children:
             print(k.value)
     print("\n")
+
+
+
 
 
 
